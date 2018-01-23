@@ -64,33 +64,33 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
     # The decoder part of the network upsamples the input into the original image size.
     # The output will be a 4-dimensional tensor: batch size, original image size (height/width) and the number of classes.
     # 1st Decoder Layer ; Takes input from the conv_1x1 layer
-    #deconv1_output = tf.layers.conv2d_transpose(conv_1x1, num_classes, 4, 2, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv1')
+    deconv1_output = tf.layers.conv2d_transpose(conv_1x1, num_classes, 4, 2, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv1')
 
-    #deconv1_output = tf.nn.elu(deconv1_output)
+    deconv1_output = tf.nn.elu(deconv1_output)
 
-    #pool_4 = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3),\
-        #kernel_initializer=tf.random_normal_initializer(mean=0, stddev=0.1),name='pool_4')
+    pool_4 = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3),\
+        kernel_initializer=tf.random_normal_initializer(mean=0, stddev=0.1),name='pool_4')
 
-    #deconv1_output = tf.add(deconv1_output, pool_4)
+    deconv1_output = tf.add(deconv1_output, pool_4)
 
     # 2nd decoder layer;
-    #deconv2_output = tf.layers.conv2d_transpose(deconv1_output, num_classes, 4, 2, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv2')
+    deconv2_output = tf.layers.conv2d_transpose(deconv1_output, num_classes, 4, 2, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv2')
 
-    #deconv2_output = tf.nn.elu(deconv2_output)
+    deconv2_output = tf.nn.elu(deconv2_output)
 
-    #pool_3 = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3),\
-        #kernel_initializer=tf.random_normal_initializer(mean=0, stddev=0.01),name='pool_3')
+    pool_3 = tf.layers.conv2d(vgg_layer3_out, num_classes, 1, padding='same',kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3),\
+        kernel_initializer=tf.random_normal_initializer(mean=0, stddev=0.01),name='pool_3')
 
-    #deconv2_output = tf.add(deconv2_output, pool_3)
+    deconv2_output = tf.add(deconv2_output, pool_3)
 
     # 3rd decoder layer;
-    #deconv3_output = tf.layers.conv2d_transpose(deconv2_output, num_classes, 16, 8, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv3')
+    deconv3_output = tf.layers.conv2d_transpose(deconv2_output, num_classes, 16, 8, padding='same', kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3), name='deconv3')
 
-    #deconv3_output = tf.nn.elu(deconv3_output)
+    deconv3_output = tf.nn.elu(deconv3_output)
 
 
-    return conv_1x1
-#tests.test_layers(layers)
+    return deconv3_output
+tests.test_layers(layers)
 
 
 def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
@@ -157,8 +157,8 @@ def run():
     data_dir = './data'
     runs_dir = './runs'
     learning_rate = 1e-4
-    epochs = 10
-    batch_size = 200
+    epochs = 20
+    batch_size = 5
     tests.test_for_kitti_dataset(data_dir)
 
     # Download pretrained vgg model
