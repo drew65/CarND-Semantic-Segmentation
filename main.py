@@ -44,6 +44,7 @@ def load_vgg(sess, vgg_path):
     w7 = graph.get_tensor_by_name(vgg_layer7_out_tensor_name)
 
     return w1, keep, w3, w4, w7
+print("Load VGG Model")
 tests.test_load_vgg(load_vgg, tf)
 
 
@@ -90,6 +91,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
 
 
     return deconv3_output
+print("Layers Test")
 tests.test_layers(layers)
 
 
@@ -109,7 +111,8 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     training_operation = optimizer.minimize(cross_entropy_loss)
 
     return logits, training_operation, cross_entropy_loss
-tests.test_optimize(optimize)
+print("Optimize Test")
+tests.test_optimize(optimize)   
 
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
@@ -133,7 +136,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     #training_operation = optimizer.minimize(loss_operation)
     Learning_rate = 1e-4
     DROPOUT = 0.5
-    print("hello1")
+    #print("hello1")
     for epoch in range(epochs):
       for batch, (image, label) in enumerate(get_batches_fn(batch_size)):
         feed_dict = {
@@ -147,7 +150,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
         print("EPOCH: {:5} | BATCH: {:5} | LOSS: {:10.5}".format(epoch, batch, loss))
     #pass
     #sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, keep_prob: dropout})
-print("hello2")
+print("Training Test")
 tests.test_train_nn(train_nn)
 
 
@@ -157,17 +160,18 @@ def run():
     data_dir = './data'
     runs_dir = './runs'
     learning_rate = 1e-4
-    epochs = 20
+    epochs =150
     batch_size = 5
     tests.test_for_kitti_dataset(data_dir)
 
     # Download pretrained vgg model
+    print("download_pretrained_vgg")
     helper.maybe_download_pretrained_vgg(data_dir)
 
     # OPTIONAL: Train and Inference on the cityscapes dataset instead of the Kitti dataset.
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
-    print("hello3")
+
     #config = tf.ConfigProto()
     #config.gpu_options.allocator_type = 'BFC'
     #with tf.Session(config = config) as s:
@@ -178,10 +182,11 @@ def run():
     #with tf.InteractiveSession(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     #with session as sess:
         # Path to vgg model
-        print("hello4")
+
         vgg_path = os.path.join(data_dir, 'vgg')
+        print("vgg_path = {}".format(vgg_path))
         # Create function to get batches
-        print("hello5")
+        print("Create function to get batches")
         get_batches_fn = helper.gen_batch_function(os.path.join(data_dir, 'data_road/training'), image_shape)
 
         # OPTIONAL: Augment Images for better results
@@ -189,27 +194,30 @@ def run():
 
         # TODO: Build NN using load_vgg, layers, and optimize function
         #setup placeholder tensors
-        print("hello6")
+        #print("hello6")
         correct_label = tf.placeholder(tf.float32, [None, image_shape[0], image_shape[1], num_classes])
+        print("learning_rate = {}".format(learning_rate))
         learning_rate = tf.placeholder(tf.float32)
-        print("hello7")
+
         input_image, keep_prob, layer3_out, layer4_out, layer7_out = load_vgg(sess, vgg_path)
-        print("hello8")
+        print("load_vgg")
         layer_output = layers(layer3_out, layer4_out, layer7_out, num_classes)
-        print("hello9")
+        print("layers")
         logits, training_operation, cross_entropy_loss = optimize(layer_output, correct_label, learning_rate, num_classes)
-        print("hello10")
+        print("optimize")
 
 
         # TODO: Train NN using the train_nn function
         #sess.run(tf.global_variables_initializer())
-        print("hello11")
+        print("train_nn")
         train_nn(sess, epochs, batch_size, get_batches_fn, training_operation, cross_entropy_loss, input_image, correct_label, keep_prob, learning_rate)
 
         print("thats all folks")
 
         # TODO: Save inference data using helper.save_inference_samples
         #  helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
+        print("Save inference data")
+        helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video
 
